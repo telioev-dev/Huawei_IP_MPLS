@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+
+<project default="package" basedir=".">
+	<property name="basews" value="../../"/>
+	<property name="libDir" value="${basews}/${project_name}/lib"/>
+	<property name="cartridgeBuildDir" value="${basews}/${project_name}/cartridgeBuild"/>
+	<property name="jarTarget" value="${cartridgeBuildDir}/${archive_name}.jar"/>
+	<property name="importedJarTarget" value="${basews}/${project_name}/generated/${archive_name}.jar"/>
+	<property name="outputDir" value="${basews}/${project_name}/out"/>
+	<property name="srcDir" value="${basews}/${project_name}/src"/>
+	<property name="generatedSrcDir" value="${basews}/${project_name}/generated/src"/>	
+	<property name="integrityLibDir" value="${basews}/${project_name}/integrityLib"/>	
+	<property name="earTarget" value="${cartridgeBuildDir}/${archive_name}.ear"/>
+	<property name="generatedDir" value="${basews}/${project_name}/generated"/>
+	<property name="pluginMetaModelDir" value="${basews}/${project_name}/generated/pluginMetaModels"/>
+
+	<!-- application xml needs to come from 'src' rather that 'out' or there is build problems -->
+	<property name="applicationXml" value="${srcDir}/META-INF/application.xml"/> 
+		
+	<target name="package" depends="cleanPackage,copyMetaModels,jar">
+		<echo message="Project Name=${project_name}"/>
+		<echo message="Destination Jar=${jarTarget}"/>
+		<echo message="Output Dir=${outputDir}"/>
+		<copy todir="${cartridgeBuildDir}">
+			<fileset dir="${generatedDir}">
+		        <include name="pluginMetaModels/*.xml"/>
+		    </fileset>
+		</copy>
+	</target>	
+	
+	<target name="cleanPackage">
+		<echo message="Project Name=${project_name}"/>
+		<delete file="${jarTarget}"/>
+	</target>
+	
+	<target name="jar">
+		<jar manifest="${basews}/${project_name}/generated/MANIFEST.MF" destfile="${jarTarget}" basedir="${outputDir}" filesonly="false" excludes="build.xml"/>
+		<!-- 
+			Make a new version of the JAR for use by other cartridges. This one will not have the CLASSPATH entry in its manifest.
+			If we need to, we can also filter out other files, as well.	
+		 -->
+		<jar destfile="${importedJarTarget}" basedir="${outputDir}" filesonly="false" excludes="build.xml"/>
+	</target>		
+
+	<target name="copyMetaModels">
+		<copy todir="${outputDir}">
+			<fileset dir="${generatedDir}">
+		        <include name="pluginMetaModels/*.xml"/>
+		    </fileset>
+		</copy>
+	</target>
+	
+	
+</project>

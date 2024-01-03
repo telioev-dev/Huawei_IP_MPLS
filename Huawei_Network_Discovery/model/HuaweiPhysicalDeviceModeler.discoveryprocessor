@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com:modelEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.oracle.com/communications/sce/integrity/model/integrity" xmlns:integrity="http://xmlns.oracle.com/communications/sce/integrity/model/integrity" xmlns:com="http://www.mslv.com/studio/core/model/common" xsi:type="DiscoveryProcessorType" name="HuaweiPhysicalDeviceModeler">
+  <com:displayName lang="[default]">HuaweiPhysicalDeviceModeler</com:displayName>
+  <com:saveVersion>4</com:saveVersion>
+  <com:id>gqg4gmckS3mAo8er58XGOw</com:id>
+  <com:interface>
+    <com:inputParameter xsi:type="ProcessorInputType" name="huaweiPhysicalCollectorResponseDocument">
+      <parameterType>oracle.communications.platform.nds.snmp.huaweiphysicalcollector.HuaweiPhysicalCollectorResponseType</parameterType>
+      <required>true</required>
+      <outputParameterRef>
+        <com:entity>HuaweiPhysicalCollector</com:entity>
+        <com:entityType>snmpdiscoveryprocessor</com:entityType>
+        <com:relationship>oracle.communications.sce.integrity.processor.inputparam.outputparam</com:relationship>
+        <com:element>huaweiPhysicalCollectorResponseDocument</com:element>
+        <com:elementType>oracle.communications.sce.integrity.action.outputparameter</com:elementType>
+      </outputParameterRef>
+    </com:inputParameter>
+    <com:inputParameter xsi:type="ProcessorInputType" name="responseContext">
+      <parameterType>com.ttbs.huawei.mpls.discoveryprocessors.util.ResponseContext</parameterType>
+      <description></description>
+      <required>true</required>
+      <outputParameterRef>
+        <com:entity>HuaweiDiscoveryInitializer</com:entity>
+        <com:entityType>discoveryprocessor</com:entityType>
+        <com:relationship>oracle.communications.sce.integrity.processor.inputparam.outputparam</com:relationship>
+        <com:element>responseContext</com:element>
+        <com:elementType>oracle.communications.sce.integrity.action.outputparameter</com:elementType>
+        <com:elementName>responseContext</com:elementName>
+      </outputParameterRef>
+    </com:inputParameter>
+    <com:inputParameter xsi:type="ProcessorInputType" name="deviceStatus">
+      <parameterType>com.ttbs.huawei.mpls.discoveryprocessors.util.DeviceStatus</parameterType>
+      <description></description>
+      <required>true</required>
+      <outputParameterRef>
+        <com:entity>HuaweiDiscoveryInitializer</com:entity>
+        <com:entityType>discoveryprocessor</com:entityType>
+        <com:relationship>oracle.communications.sce.integrity.processor.inputparam.outputparam</com:relationship>
+        <com:element>deviceStatus</com:element>
+        <com:elementType>oracle.communications.sce.integrity.action.outputparameter</com:elementType>
+        <com:elementName>deviceStatus</com:elementName>
+      </outputParameterRef>
+    </com:inputParameter>
+    <com:outputParameter xsi:type="ProcessorOutputType" name="physicalDevice">
+      <parameterType>oracle.communications.inventory.api.entity.PhysicalDevice</parameterType>
+      <description></description>
+    </com:outputParameter>
+    <com:outputParameter xsi:type="ProcessorOutputType" name="portNameAndEntity">
+      <parameterType>java.util.Map&lt;String,oracle.communications.inventory.api.entity.PhysicalPort></parameterType>
+      <description>This map is created to hold physical port entity with port name as key.</description>
+    </com:outputParameter>
+  </com:interface>
+  <com:implementation xsi:type="com:javaClassImplementationType">
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweiphysicaldevicemodeler.HuaweiPhysicalDeviceModelerProcessorImpl</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.implementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweiphysicaldevicemodeler/HuaweiPhysicalDeviceModelerProcessorImpl</com:method>
+  </com:implementation>
+  <implementationPrefix>HuaweiPhysicalDeviceModeler</implementationPrefix>
+  <useDefaultImplementationPrefix>true</useDefaultImplementationPrefix>
+  <generatedInterfaceClass>
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweiphysicaldevicemodeler.HuaweiPhysicalDeviceModelerProcessorInterface</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.generatedInterfaceImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweiphysicaldevicemodeler/HuaweiPhysicalDeviceModelerProcessorInterface</com:method>
+  </generatedInterfaceClass>
+  <generatedPropertiesClass>
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweiphysicaldevicemodeler.HuaweiPhysicalDeviceModelerPropertyGroup</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.generatedPropertiesImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweiphysicaldevicemodeler/HuaweiPhysicalDeviceModelerPropertyGroup</com:method>
+  </generatedPropertiesClass>
+  <generatedRequestClass>
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweiphysicaldevicemodeler.HuaweiPhysicalDeviceModelerProcessorRequest</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.generatedRequestImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweiphysicaldevicemodeler/HuaweiPhysicalDeviceModelerProcessorRequest</com:method>
+  </generatedRequestClass>
+  <generatedResponseClass>
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweiphysicaldevicemodeler.HuaweiPhysicalDeviceModelerProcessorResponse</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.generatedResponseImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweiphysicaldevicemodeler/HuaweiPhysicalDeviceModelerProcessorResponse</com:method>
+  </generatedResponseClass>
+</com:modelEntity>

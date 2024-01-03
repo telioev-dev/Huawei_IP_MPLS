@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com:modelEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.oracle.com/communications/sce/integrity/model/integrity" xmlns:integrity="http://xmlns.oracle.com/communications/sce/integrity/model/integrity" xmlns:com="http://www.mslv.com/studio/core/model/common" xsi:type="DiscoveryActionType" name="IpMplsHuaweiDiscovery">
+  <com:displayName lang="[default]">Huawei_Network_Discovery_Action</com:displayName>
+  <com:saveVersion>8</com:saveVersion>
+  <com:id>pmwS09A1Q92QnlgHLRYIFg</com:id>
+  <implementationPrefix>IpMplsHuaweiDiscovery</implementationPrefix>
+  <useDefaultImplementationPrefix>true</useDefaultImplementationPrefix>
+  <isAbstract>false</isAbstract>
+  <componentProcessor xsi:type="ComponentProcessorType">
+    <actionRef>
+      <com:entity>Abstract_Reports_Generater</com:entity>
+      <com:entityType>discoveryaction</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentAction</com:relationship>
+    </actionRef>
+    <processorRef>
+      <com:entity>ReportInitilizerProcessor</com:entity>
+      <com:entityType>discoveryprocessor</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentProcessorRef</com:relationship>
+    </processorRef>
+  </componentProcessor>
+  <componentProcessor xsi:type="ComponentProcessorType">
+    <processorRef>
+      <com:entity>HuaweiPhysicalCollector</com:entity>
+      <com:entityType>snmpdiscoveryprocessor</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentProcessor</com:relationship>
+    </processorRef>
+  </componentProcessor>
+  <componentProcessor xsi:type="ComponentProcessorType">
+    <processorRef>
+      <com:entity>HuaweiDiscoveryInitializer</com:entity>
+      <com:entityType>discoveryprocessor</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentProcessor</com:relationship>
+    </processorRef>
+  </componentProcessor>
+  <componentProcessor xsi:type="ComponentProcessorType">
+    <processorRef>
+      <com:entity>HuaweiPhysicalDeviceModeler</com:entity>
+      <com:entityType>discoveryprocessor</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentProcessor</com:relationship>
+    </processorRef>
+  </componentProcessor>
+  <componentProcessor xsi:type="ComponentProcessorType">
+    <processorRef>
+      <com:entity>HuaweiLogicalDeviceModeler</com:entity>
+      <com:entityType>discoveryprocessor</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentProcessor</com:relationship>
+    </processorRef>
+  </componentProcessor>
+  <componentProcessor xsi:type="ComponentProcessorType">
+    <processorRef>
+      <com:entity>HuaweiModelPersister</com:entity>
+      <com:entityType>discoveryprocessor</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentProcessor</com:relationship>
+    </processorRef>
+  </componentProcessor>
+  <componentProcessor xsi:type="ComponentProcessorType">
+    <actionRef>
+      <com:entity>Abstract_Reports_Generater</com:entity>
+      <com:entityType>discoveryaction</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentAction</com:relationship>
+    </actionRef>
+    <processorRef>
+      <com:entity>GenerateNeReport</com:entity>
+      <com:entityType>discoveryprocessor</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentProcessorRef</com:relationship>
+    </processorRef>
+  </componentProcessor>
+  <componentProcessor xsi:type="ComponentProcessorType">
+    <actionRef>
+      <com:entity>Abstract_Reports_Generater</com:entity>
+      <com:entityType>discoveryaction</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentAction</com:relationship>
+    </actionRef>
+    <processorRef>
+      <com:entity>GenerateHardwareInventoryReport</com:entity>
+      <com:entityType>discoveryprocessor</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentProcessorRef</com:relationship>
+    </processorRef>
+  </componentProcessor>
+  <componentProcessor xsi:type="ComponentProcessorType">
+    <actionRef>
+      <com:entity>Abstract_Reports_Generater</com:entity>
+      <com:entityType>discoveryaction</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentAction</com:relationship>
+    </actionRef>
+    <processorRef>
+      <com:entity>GeneratePortReport</com:entity>
+      <com:entityType>discoveryprocessor</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.componentProcessorRef</com:relationship>
+    </processorRef>
+  </componentProcessor>
+  <modelCollection>
+    <com:entity>Huawei_Network_Discovery</com:entity>
+    <com:entityType>modelcollection</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.action.actionmodel</com:relationship>
+  </modelCollection>
+  <generatedMDBImplementation>
+    <com:entity>com.ttbs.huawei.mpls.discoveryactions.ipmplshuaweidiscovery.IpMplsHuaweiDiscoveryMessageDrivenBean</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.action.generatedMDBImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryactions/ipmplshuaweidiscovery/IpMplsHuaweiDiscoveryMessageDrivenBean</com:method>
+  </generatedMDBImplementation>
+  <generatedControllerImplementation>
+    <com:entity>com.ttbs.huawei.mpls.discoveryactions.ipmplshuaweidiscovery.IpMplsHuaweiDiscoveryController</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.action.generatedControllerImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryactions/ipmplshuaweidiscovery/IpMplsHuaweiDiscoveryController</com:method>
+  </generatedControllerImplementation>
+  <addressHandler>
+    <com:entity>IPAddressHandler</com:entity>
+    <com:entityType>addresshandler</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.action.addresshandler</com:relationship>
+  </addressHandler>
+  <resultsGroup>
+    <name>IpMplsHuawei</name>
+    <description>It will discover snmp devices</description>
+  </resultsGroup>
+  <uiParameters>
+    <modelData>
+      <com:entity>SnmpParameters</com:entity>
+      <com:entityType>scanparameter</com:entityType>
+      <com:relationship>oracle.communications.sce.integrity.action.uiparameter</com:relationship>
+      <generatedHelperClass>
+        <com:entity>com.ttbs.huawei.mpls.discoveryactions.ipmplshuaweidiscovery.SnmpParameters</com:entity>
+        <com:entityType>java</com:entityType>
+        <com:relationship>oracle.communications.sce.integrity.action.uiparameter.generatedHelperImplementation</com:relationship>
+        <com:method>com/ttbs/huawei/mpls/discoveryactions/ipmplshuaweidiscovery/SnmpParameters</com:method>
+      </generatedHelperClass>
+    </modelData>
+  </uiParameters>
+</com:modelEntity>

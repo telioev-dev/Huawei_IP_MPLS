@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com:modelEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.oracle.com/communications/sce/integrity/model/integrity" xmlns:integrity="http://xmlns.oracle.com/communications/sce/integrity/model/integrity" xmlns:com="http://www.mslv.com/studio/core/model/common" xsi:type="DiscoveryProcessorType" name="HuaweiDiscoveryInitializer">
+  <com:displayName lang="[default]">HuaweiDiscoveryInitializer</com:displayName>
+  <com:saveVersion>4</com:saveVersion>
+  <com:id>f7-2JIRuT3SmNCxjKqMNfg</com:id>
+  <com:interface>
+    <com:outputParameter xsi:type="ProcessorOutputType" name="responseContext">
+      <parameterType>com.ttbs.huawei.mpls.discoveryprocessors.util.ResponseContext</parameterType>
+      <description></description>
+    </com:outputParameter>
+    <com:outputParameter xsi:type="ProcessorOutputType" name="deviceStatus">
+      <parameterType>com.ttbs.huawei.mpls.discoveryprocessors.util.DeviceStatus</parameterType>
+      <description></description>
+    </com:outputParameter>
+  </com:interface>
+  <com:implementation xsi:type="com:javaClassImplementationType">
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweidiscoveryinitializer.HuaweiDiscoveryInitializerProcessorImpl</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.implementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweidiscoveryinitializer/HuaweiDiscoveryInitializerProcessorImpl</com:method>
+  </com:implementation>
+  <implementationPrefix>HuaweiDiscoveryInitializer</implementationPrefix>
+  <useDefaultImplementationPrefix>true</useDefaultImplementationPrefix>
+  <generatedInterfaceClass>
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweidiscoveryinitializer.HuaweiDiscoveryInitializerProcessorInterface</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.generatedInterfaceImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweidiscoveryinitializer/HuaweiDiscoveryInitializerProcessorInterface</com:method>
+  </generatedInterfaceClass>
+  <generatedPropertiesClass>
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweidiscoveryinitializer.HuaweiDiscoveryInitializerPropertyGroup</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.generatedPropertiesImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweidiscoveryinitializer/HuaweiDiscoveryInitializerPropertyGroup</com:method>
+  </generatedPropertiesClass>
+  <generatedRequestClass>
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweidiscoveryinitializer.HuaweiDiscoveryInitializerProcessorRequest</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.generatedRequestImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweidiscoveryinitializer/HuaweiDiscoveryInitializerProcessorRequest</com:method>
+  </generatedRequestClass>
+  <generatedResponseClass>
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweidiscoveryinitializer.HuaweiDiscoveryInitializerProcessorResponse</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.generatedResponseImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweidiscoveryinitializer/HuaweiDiscoveryInitializerProcessorResponse</com:method>
+  </generatedResponseClass>
+</com:modelEntity>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com:modelEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.oracle.com/communications/sce/integrity/model/integrity" xmlns:integrity="http://xmlns.oracle.com/communications/sce/integrity/model/integrity" xmlns:com="http://www.mslv.com/studio/core/model/common" xsi:type="DiscoveryProcessorType" name="HuaweiModelPersister">
+  <com:displayName lang="[default]">HuaweiModelPersister</com:displayName>
+  <com:saveVersion>5</com:saveVersion>
+  <com:id>71YjAI3fSm6s5wFEKfV+kQ</com:id>
+  <com:interface>
+    <com:inputParameter xsi:type="ProcessorInputType" name="physicalDevice">
+      <parameterType>oracle.communications.inventory.api.entity.PhysicalDevice</parameterType>
+      <description></description>
+      <required>true</required>
+      <outputParameterRef>
+        <com:entity>HuaweiPhysicalDeviceModeler</com:entity>
+        <com:entityType>discoveryprocessor</com:entityType>
+        <com:relationship>oracle.communications.sce.integrity.processor.inputparam.outputparam</com:relationship>
+        <com:element>physicalDevice</com:element>
+        <com:elementType>oracle.communications.sce.integrity.action.outputparameter</com:elementType>
+      </outputParameterRef>
+    </com:inputParameter>
+    <com:inputParameter xsi:type="ProcessorInputType" name="logicalDevice">
+      <parameterType>oracle.communications.inventory.api.entity.LogicalDevice</parameterType>
+      <description></description>
+      <required>true</required>
+      <outputParameterRef>
+        <com:entity>HuaweiLogicalDeviceModeler</com:entity>
+        <com:entityType>discoveryprocessor</com:entityType>
+        <com:relationship>oracle.communications.sce.integrity.processor.inputparam.outputparam</com:relationship>
+        <com:element>logicalDevice</com:element>
+        <com:elementType>oracle.communications.sce.integrity.action.outputparameter</com:elementType>
+        <com:elementName>logicalDevice</com:elementName>
+      </outputParameterRef>
+    </com:inputParameter>
+    <com:inputParameter xsi:type="ProcessorInputType" name="responseContext">
+      <parameterType>com.ttbs.huawei.mpls.discoveryprocessors.util.ResponseContext</parameterType>
+      <description></description>
+      <required>true</required>
+      <outputParameterRef>
+        <com:entity>HuaweiDiscoveryInitializer</com:entity>
+        <com:entityType>discoveryprocessor</com:entityType>
+        <com:relationship>oracle.communications.sce.integrity.processor.inputparam.outputparam</com:relationship>
+        <com:element>responseContext</com:element>
+        <com:elementType>oracle.communications.sce.integrity.action.outputparameter</com:elementType>
+      </outputParameterRef>
+    </com:inputParameter>
+    <com:inputParameter xsi:type="ProcessorInputType" name="reportContext">
+      <parameterType>com.teliolabs.ttbs.integrity.reporting.util.ReportContext</parameterType>
+      <description></description>
+      <required>true</required>
+      <outputParameterRef>
+        <com:entity>ReportInitilizerProcessor</com:entity>
+        <com:entityType>discoveryprocessor</com:entityType>
+        <com:relationship>oracle.communications.sce.integrity.processor.inputparam.outputparam</com:relationship>
+        <com:element>reportContext</com:element>
+        <com:elementType>oracle.communications.sce.integrity.action.outputparameter</com:elementType>
+      </outputParameterRef>
+    </com:inputParameter>
+  </com:interface>
+  <com:implementation xsi:type="com:javaClassImplementationType">
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweimodelpersister.HuaweiModelPersisterProcessorImpl</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.implementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweimodelpersister/HuaweiModelPersisterProcessorImpl</com:method>
+  </com:implementation>
+  <implementationPrefix>HuaweiModelPersister</implementationPrefix>
+  <useDefaultImplementationPrefix>true</useDefaultImplementationPrefix>
+  <generatedInterfaceClass>
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweimodelpersister.HuaweiModelPersisterProcessorInterface</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.generatedInterfaceImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweimodelpersister/HuaweiModelPersisterProcessorInterface</com:method>
+  </generatedInterfaceClass>
+  <generatedPropertiesClass>
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweimodelpersister.HuaweiModelPersisterPropertyGroup</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.generatedPropertiesImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweimodelpersister/HuaweiModelPersisterPropertyGroup</com:method>
+  </generatedPropertiesClass>
+  <generatedRequestClass>
+    <com:entity>com.ttbs.huawei.mpls.discoveryprocessors.huaweimodelpersister.HuaweiModelPersisterProcessorRequest</com:entity>
+    <com:entityType>java</com:entityType>
+    <com:relationship>oracle.communications.sce.integrity.processor.generatedRequestImplementation</com:relationship>
+    <com:method>com/ttbs/huawei/mpls/discoveryprocessors/huaweimodelpersister/HuaweiModelPersisterProcessorRequest</com:method>
+  </generatedRequestClass>
+</com:modelEntity>

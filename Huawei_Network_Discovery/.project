@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>Huawei_Network_Discovery</name>
+	<comment></comment>
+	<projects>
+		<project>ora_uim_model</project>
+		<project>OracleComms_UIM_Device_PortsInterfacesConnectors</project>
+		<project>Address_Handlers</project>
+		<project>NetworkIntegritySDK</project>
+		<project>TTBS_UIM_Device_PortInterfaces</project>
+		<project>TTBS_UIM_HUAWEI_IP</project>
+		<project>TTBS_NI_Reporting_Abstract_Cartridge</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>com.mslv.studio.core.builder.generator</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>com.mslv.studio.core.builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>oracle.communications.sce.integrity.core.nature</nature>
+		<nature>com.mslv.studio.core.nature</nature>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+</projectDescription>
