@@ -10,6 +10,7 @@
 		<project>TTBS_UIM_Device_PortInterfaces</project>
 		<project>TTBS_UIM_HUAWEI_IP</project>
 		<project>TTBS_NI_Reporting_Abstract_Cartridge</project>
+		<project>TTBS_UIM_CHARACTERISTICS</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

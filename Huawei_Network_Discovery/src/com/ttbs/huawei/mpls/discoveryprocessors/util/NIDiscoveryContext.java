@@ -299,14 +299,14 @@ public class NIDiscoveryContext {
 		
 	}
 	public static Properties getDeviceDimensionMappings() {
-		Properties locProps = new Properties();
+		Properties dimensionProps = new Properties();
 		try {
-			locProps.load(new FileInputStream(System.getenv("NI_CONFIG") +"/SpecificationMapping/DeviceDimension.properties"));
+			dimensionProps.load(new FileInputStream(System.getenv("NI_CONFIG") +"/SpecificationMapping/DeviceDimension.properties"));
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return locProps;
+		return dimensionProps;
 		
 	}
 	public static Properties getMaterialCodeMappings() {

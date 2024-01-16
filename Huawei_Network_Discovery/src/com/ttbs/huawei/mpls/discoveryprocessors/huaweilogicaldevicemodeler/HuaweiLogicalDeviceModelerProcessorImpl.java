@@ -235,7 +235,7 @@ public class HuaweiLogicalDeviceModelerProcessorImpl implements HuaweiLogicalDev
 			logicalDevice.setAlias(checkforNull(request.getScopeAddress()));
 			logicalDevice.setDeviceIdentifier(logicalDevice.getName());
 			String location = networkLocationMappings.getProperty(logicalDevice.getName());
-			logicalDevice.setNetworkLocationEntityCode(location==null||location.isEmpty()?"N/A":location);
+			logicalDevice.setNetworkLocationEntityCode(location);
 			boolean hasLDSpecification = false;
 
 			if (!Utils.checkNull(request.getPhysicalDevice())
@@ -252,7 +252,7 @@ public class HuaweiLogicalDeviceModelerProcessorImpl implements HuaweiLogicalDev
 			}
 
 			if (hasLDSpecification) {
-				System.out.println("in ld spec");
+				//System.out.println("in ld spec");
 				// apply custom physical device characteristics
 				Map<String, String> logicalDeviceCharMap = new HashMap<String, String>();
 				logicalDeviceCharMap.put("ipAddress", checkforNull(snmpDataResponseType.getManagementIP()));
@@ -431,7 +431,8 @@ public class HuaweiLogicalDeviceModelerProcessorImpl implements HuaweiLogicalDev
 						CharMap.put("Administrative_Status", checkforNull(String.valueOf(ifEntry.getIfAdminStatus())));
 						CharMap.put("MacAddress", checkforNull(ifEntry.getIfPhysAddress()));
 						CharMap.put("Ipaddress", checkforNull(ipAddress));
-
+						CharMap.put("discoveryStatus", "Active");
+						CharMap.put("alarmStatus", "ok");
 						//
 						// String string = localPortsMap.get(deviceInterface.getName());
 
