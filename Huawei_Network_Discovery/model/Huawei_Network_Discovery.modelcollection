@@ -3867,7 +3867,7 @@
       </generatedHelperClass>
     </modelData>
     <modelData>
-      <com:entity>HUAWEI_LPUI_Card</com:entity>
+      <com:entity>HUAWEI_LPUI_CARD</com:entity>
       <com:entityType>equipment</com:entityType>
       <com:relationship>oracle.communications.sce.integrity.modelcollection.modelnode</com:relationship>
       <generatedHelperClass>

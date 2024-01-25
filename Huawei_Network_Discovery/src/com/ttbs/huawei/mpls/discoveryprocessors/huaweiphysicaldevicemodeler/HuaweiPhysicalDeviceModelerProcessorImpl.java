@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -134,6 +135,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 		String deviceName;
 
 		try {
+			
 			responseContext = request.getResponseContext();
 			niDiscoveryContext = responseContext.getNiDiscoveryContext();
 			snmpDataResponseType = request.getHuaweiPhysicalCollectorResponseDocument();
@@ -372,59 +374,96 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 				if (pdEquipRel.size()>=1) {
 				    System.out.println("size of pdEquipRel.size()" + pdEquipRel.size());
 
-				    for (PhysicalDeviceEquipmentRel physicalDeviceEquipmentRel : pdEquipRel) {
-				        if (physicalDeviceEquipmentRel != null) {
+					    for (PhysicalDeviceEquipmentRel physicalDeviceEquipmentRel : pdEquipRel) {
+					        if (physicalDeviceEquipmentRel != null) {
+	
+					        System.out.println("physicalDeviceEquipmentRel is not null=========");
+					        Equipment equipment = physicalDeviceEquipmentRel.getEquipment();
+					        List<EquipmentHolder> equipmentHolders = equipment.getEquipmentHolders();
+					        EquipmentSpecification specification = equipment.getSpecification();
+					        System.out.println("shelf specification name====================" + specification.getName().replaceAll("\\s+", ""));
+					        int count = 1; // Initialize count outside the loop if this is intentional
+					        String noOfslots = slotPosition.getProperty(specification.getName().replaceAll("\\s+", ""));
+					        System.out.println("noOfslots=============" + noOfslots);
+					        if (noOfslots !=null && !noOfslots.isEmpty()) {
+					        List<EquipmentHolder> newEquipmentHolders = new ArrayList<>();
+					        Set<String> existingNativeEmsNames = new HashSet<>();
+					        for (EquipmentHolder slot : equipmentHolders) {
+					            System.out.println("count=================" + count);
+					            System.out.println("Existing slots: " + slot.getName());
+					            //list of native ems
+					           existingNativeEmsNames.add(slot.getNativeEmsName()) ;
+					        
+					        }
+					        
+					            for (int i = 1; i <= Integer.parseInt(noOfslots); i++) {
+					                String newNativeEmsName = String.valueOf(i);
+					                //newNativeEmsName=23 existingNativeEmsNames=no 23
+					                if (!existingNativeEmsNames.contains(newNativeEmsName)) {
+					                    EquipmentHolder holder = DiscoveryUtility.createEquipmentHolder();
+					                    holder.setName("Slot-" + i); //23
+					                    holder.setNativeEmsName(String.valueOf(i));
+					                    holder.setDescription("EmptySlots");
+					                    holder.setSerialNumber("NA");
+					                    holder.setPhysicalLocation(physicalLoc);
+					                    String holderName = chassisType.toUpperCase().trim().replaceAll("\\s+", "") + "_"
+					            				+ holder.getName().toUpperCase().trim().replaceAll("\\s+", "_");
+					                    boolean hasSlotSpecification=niDiscoveryContext.applySpecification(holder, holderName);
+					                    newEquipmentHolders.add(holder);
+					            }
+					            
+					        }
+					            //add the sorting logic
+					            equipmentHolders.addAll(newEquipmentHolders); 
+					            equipmentHolders.sort(Comparator.comparing(EquipmentHolder::getNativeEmsName)); 
+					            customSort(equipmentHolders);
+					            // Add new equipment holders to the original list after the iteration
+					         //   equipmentHolders.addAll(newEquipmentHolders);
+					            /*if (specification.getName().contains("EquipmentHolder")) {
+					            	equipment.getEquipmentHolders().clear();
+								}*/
+					        }}
+					   
+					        
+					    }
+				    //adding sorting logic
+				    List<PhysicalDeviceEquipmentRel> newEquipmentList = new ArrayList<>();
+		            
+					for (PhysicalDeviceEquipmentRel pdEqRel : physicalDevice.getEquipment()) {
+				    
 
-				        System.out.println("physicalDeviceEquipmentRel is not null=========");
-				        Equipment equipment = physicalDeviceEquipmentRel.getEquipment();
-				        List<EquipmentHolder> equipmentHolders = equipment.getEquipmentHolders();
-				        EquipmentSpecification specification = equipment.getSpecification();
-				        System.out.println("shelf specification name====================" + specification.getName());
-				        int count = 1; // Initialize count outside the loop if this is intentional
-				        String noOfslots = slotPosition.getProperty(specification.getName());
-				        System.out.println("noOfslots=============" + noOfslots);
+					    if (pdEqRel.getEquipment() != null) {
 
-				        List<EquipmentHolder> newEquipmentHolders = new ArrayList<>();
-				        Set<String> existingNativeEmsNames = new HashSet<>();
-				        for (EquipmentHolder slot : equipmentHolders) {
-				            System.out.println("count=================" + count);
-				            System.out.println("Existing slots: " + slot.getName());
-				            //list of native ems
-				           existingNativeEmsNames.add(slot.getNativeEmsName()) ;
-				        
-				        }
-				            for (int i = 1; i <= Integer.parseInt(noOfslots); i++) {
-				                String newNativeEmsName = String.valueOf(i);
-				                //newNativeEmsName=23 existingNativeEmsNames=no 23
-				                if (!existingNativeEmsNames.contains(newNativeEmsName)) {
-				                    EquipmentHolder holder = DiscoveryUtility.createEquipmentHolder();
-				                    holder.setName("slot-" + i); //23
-				                    holder.setNativeEmsName(String.valueOf(i));
-				                    holder.setDescription("EmptySlots");
-				                    holder.setSerialNumber("NA");
-				                    holder.setPhysicalLocation(physicalLoc);
-				                    String holderName = chassisType.toUpperCase().trim().replaceAll("\\s+", "") + "_"
-				            				+ holder.getName().toUpperCase().trim().replaceAll("\\s+", "_");
-				                    boolean hasSlotSpecification=niDiscoveryContext.applySpecification(holder, holderName);
-				                    newEquipmentHolders.add(holder);
-				            }
-				            
-				        }
-				            /*equipmentHolders = equipmentHolders.stream()
-				                    .sorted(Comparator.comparing(EquipmentHolder::getNativeEmsName))
-				                    .collect(Collectors.toList());*/
-				        // Add new equipment holders to the original list after the iteration
-				       //	Collections.sort(newEquipmentHolders);
-				        //equipment.getEquipmentHolders().clear();
-				        equipmentHolders.addAll(newEquipmentHolders);
-				        
-				            // Add new equipment holders to the original list after the iteration
-				         //   equipmentHolders.addAll(newEquipmentHolders);
-				            /*if (specification.getName().contains("EquipmentHolder")) {
-				            	equipment.getEquipmentHolders().clear();
-							}*/
-				        }}
-				    }
+					        Equipment shelf = sortChildHolderForEquipment(pdEqRel.getEquipment());
+ 
+					        // Create a new PhysicalDeviceEquipmentRel for the sorted equipment
+
+					        PhysicalDeviceEquipmentRel newPdEqRel = PersistenceHelper.makeEntity(PhysicalDeviceEquipmentRel.class);
+
+					        newPdEqRel.setEquipment(shelf);
+ 
+					        // Add the new PhysicalDeviceEquipmentRel to the list
+
+					        newEquipmentList.add(newPdEqRel);
+ 
+					        // Iterate through equipment holders in the sorted equipment
+
+					        for (EquipmentHolder eh : newPdEqRel.getEquipment().getEquipmentHolders()) {
+
+					            // Perform actions with each EquipmentHolder
+
+//					            System.out.println("Processing EquipmentHolder: " + eh.getName());
+
+					        }
+
+					    }
+
+					
+						}
+					physicalDevice.getEquipment().clear();
+ 
+					// Add the sorted equipment list to the physical device
+					physicalDevice.getEquipment().addAll(newEquipmentList);
 				}
 				
 			
@@ -435,7 +474,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 			getLogger().info(DiscoveryConstants.LOG_EXIT + mid);
 			// context.addToResult(physicalDevice.getName(), "HuaweiDevice",
 			// physicalDevice);
-		} catch (Exception e) {
+			}} catch (Exception e) {
 			e.printStackTrace();
 			getLogger().error(e.getMessage());
 			throw new DiscoveryRuntimeException(ipAddress,
@@ -445,7 +484,52 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 		return response;
 
 	}
+	private static void customSort(List<EquipmentHolder> equipmentHolders) {
+	    equipmentHolders.sort(new Comparator<EquipmentHolder>() {
+	        @Override
+	        public int compare(EquipmentHolder holder1, EquipmentHolder holder2) {
+	            return holder1.getNativeEmsName().compareTo(holder2.getNativeEmsName());
+	        }
+	    });
+	}
+	public Equipment sortChildHolderForEquipment(Equipment parent) {
 
+	    if (parent.getEquipmentHolders() != null) {
+
+	        List<EquipmentHolder> holderList = new LinkedList<>();
+
+	        Map<Integer, EquipmentHolder> sortedEhMap = new TreeMap<>();
+ 
+	        // Sort EquipmentHolders based on the specified criteria
+
+	        for (EquipmentHolder eq : parent.getEquipmentHolders()) {
+
+	        	if(eq!=null && eq.getSpecification()!=null && eq.getSpecification().getName()!=null) {
+
+	        	System.out.println("eq.getSpecification().getName()===="+eq.getSpecification().getName());
+
+	        			sortedEhMap.put(Integer.parseInt(eq.getNativeEmsName()), eq);
+	        	}
+
+	        }
+ 
+	        parent.getEquipmentHolders().clear();
+ 
+	        // Add sorted EquipmentHolders back to the parent
+
+	        for (Map.Entry<Integer, EquipmentHolder> entrySet : sortedEhMap.entrySet()) {
+
+	            holderList.add(entrySet.getValue());
+
+	        }
+ 
+	        parent.setEquipmentHolders(holderList);
+
+	    }
+ 
+	    return parent;
+
+	}
 	private void removeBlankEquipment(Equipment equipment) {
 
 		final String mid = MID + "removeBlankEquipment";
@@ -571,7 +655,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 
 			if (!Utils.checkNull(parentindex) && globalEquipMap.containsKey(parentindex)) {
 				Equipment parenteuipment = globalEquipMap.get(parentindex);
-				if (!port.getName().contains("Cascade")) {
+				if (!port.getName().contains("Cascade")||!port.getName().contains("Fsp")) {
 					DiscoveryUtility.addPhysicalPortToEquipment(parenteuipment, port);
 				}
 				
@@ -588,7 +672,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 		final String mid = MID + "modelEquipment";
 		getLogger().info(DiscoveryConstants.LOG_ENTER + mid);
 		String parentindex = equipData.getEntPhysicalContainedIn().toString();
-		String location;
+		String location=null;
 		Equipment rearEquipment = null;
 //		String networkLocationCode="";
 		String chassisName = chassisType.toUpperCase().trim().replaceAll("\\s+", "");
@@ -652,7 +736,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 							? "N/A"
 							: equipData.getEntPhysicalSerialNum());
 			// equipment.set
-			equipment.setNetworkLocationCode(checkforNull(location));
+			//equipment.setNetworkLocationCode(location);
 			equipment.setNativeEMSName(checkforNull(rfc1213Mib.getSysName()));
 
 			boolean hasCARDSpecification = false;
@@ -676,7 +760,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 									: equipData.getEntPhysicalSerialNum());
 					rearEquipment.setPhysicalLocation(checkforNull(physicalLoc));
 //					rearEquipment.setPhysicalLocation(networkLocationCode);
-					rearEquipment.setNetworkLocationCode(physicalLoc);
+					//rearEquipment.setNetworkLocationCode(location);
 //					rearEquipment.setNativeEMSName(rfc1213Mib.getSysName());
 					boolean hasREARCARDSpecification = niDiscoveryContext.applySpecification(rearEquipment,
 							chassisType.toUpperCase().trim().replaceAll("\\s+", "") + "_CHASSIS_REAR");
@@ -721,7 +805,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 							|| equipData.getEntPhysicalSerialNum().isEmpty()) ? "NA"
 									: equipData.getEntPhysicalSerialNum());
 					rearEquipment.setPhysicalLocation(physicalLoc);
-					rearEquipment.setNetworkLocationCode(physicalLoc);
+					//rearEquipment.setNetworkLocationCode(location);
 					
 //					rearEquipment.setNativeEMSName(rfc1213Mib.getSysName());
 					boolean hasREARCARDSpecification = niDiscoveryContext.applySpecification(rearEquipment,

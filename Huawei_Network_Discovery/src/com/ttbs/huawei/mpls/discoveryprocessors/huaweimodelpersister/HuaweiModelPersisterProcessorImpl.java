@@ -1,6 +1,8 @@
 package com.ttbs.huawei.mpls.discoveryprocessors.huaweimodelpersister;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -16,7 +18,6 @@ import oracle.communications.inventory.api.entity.PhysicalDevice;
 import oracle.communications.inventory.api.manager.NetworkManager;
 
 public class HuaweiModelPersisterProcessorImpl implements HuaweiModelPersisterProcessorInterface {
-
 	private Logger logger;
 	private static final String MID = "HuaweiModelPersisterProcessorImpl : ";
 	private DiscoveryConstants discoveryConstants;
@@ -40,20 +41,25 @@ public class HuaweiModelPersisterProcessorImpl implements HuaweiModelPersisterPr
 		getLogger().info(discoveryConstants.LOG_ENTER+mid);
 		ResponseContext responseContext = request.getResponseContext();
 		ReportContext reportContext = request.getReportContext();
-		List<PhysicalDevice> physicalDevices = responseContext.getPhysicalDevices();
+		List<PhysicalDevice> physicalDevices = reportContext.getPhysicalDevices();
 		try {
+			System.out.println("reportContext object============="+reportContext);
 			String pdresultGroupName = request.getPhysicalDevice().getName();
 			String ldresultGroupName = request.getLogicalDevice().getName();
-
+			
 			if (null != request.getPhysicalDevice()) {
+				
 				context.addToResult(pdresultGroupName, DiscoveryConstants.DEVICE_CONST, request.getPhysicalDevice());
+				physicalDevices.add(request.getPhysicalDevice());
+				System.out.println("physical device list================"+physicalDevices.size());
+				setReportContext(physicalDevices,reportContext);
 			}
-
+			
 			if (null != request.getLogicalDevice()) {
 				context.addToResult(ldresultGroupName, DiscoveryConstants.DEVICE_CONST, request.getLogicalDevice());
 			}
-			physicalDevices.add(request.getPhysicalDevice());
-			setReportContext(physicalDevices,request.getPhysicalDevice(),reportContext);
+			
+			
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -61,7 +67,7 @@ public class HuaweiModelPersisterProcessorImpl implements HuaweiModelPersisterPr
 		getLogger().info(discoveryConstants.LOG_EXIT+mid);
 		
 	}
-	private void setReportContext(List<PhysicalDevice> physicalDevices, PhysicalDevice pd, ReportContext reportContext) {
+	private void setReportContext(List<PhysicalDevice> physicalDevices, ReportContext reportContext) {
 		reportContext.setPhysicalDevices(physicalDevices);
 		
 		String reportDir = System.getenv("NI_CONFIG").concat("/").concat("reports").concat("/").concat("Huawei")
