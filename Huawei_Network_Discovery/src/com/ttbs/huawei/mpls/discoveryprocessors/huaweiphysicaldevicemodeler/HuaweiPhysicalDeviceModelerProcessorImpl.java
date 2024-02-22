@@ -94,11 +94,13 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 	private boolean portTypeFromCard = false;
 	private BufferedWriter bw = null;
 	private String materialCode = null;
+	private String location=null;
 	private String devDim = null;
 	private EquipmentHolder dummyslot = null;
 	private Properties slotPosition = null;
 	private String chassisName = null;
 	private String physicalLoc = null;
+	private static final String NA = "NA";
 
 	/**
 	 * Default constructor
@@ -159,32 +161,32 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 			// logger.debug("entPhysicalEntryType[0].getEntPhysicalModelName()==="+entPhysicalEntryType[0].getEntPhysicalModelName());
 
 			physicalDevice = DiscoveryUtility.createPhysicalDevice();
-			physicalDevice.setName((deviceName == null || deviceName.isEmpty()) ? "N/A" : deviceName);
+			physicalDevice.setName((deviceName == null || deviceName.isEmpty()) ? NA : deviceName);
 			physicalLoc = rfc1213Mib.getSysLocation();
 			if (physicalLoc != null) {
 				physicalLoc = physicalLoc.replace(" ", "").replace("\"", "");
 				// physicalLoc = locationMapProps.getProperty(physicalDevice.getName(),
 				// physicalLoc);
 			}
-			physicalDevice.setNativeEMSName(physicalDevice.getName());
+			//physicalDevice.setNativeEMSName(physicalDevice.getName());
 
-			String location = networkLocationMappings.getProperty(physicalDevice.getName());
+			 location = networkLocationMappings.getProperty(physicalDevice.getName());
 			physicalDevice.setSerialNumber((entPhysicalEntryType[0].getEntPhysicalSerialNum() == null
-					|| entPhysicalEntryType[0].getEntPhysicalSerialNum().isEmpty()) ? "N/A"
+					|| entPhysicalEntryType[0].getEntPhysicalSerialNum().isEmpty()) ? NA
 							: entPhysicalEntryType[0].getEntPhysicalSerialNum());
 			// physicalDevice.setDescription(rfc1213Mib.getSysDescr());
 			String phyDescr = rfc1213Mib.getSysDescr();
 			if (phyDescr.length() > 50) {
 				String phyDescription = phyDescr.substring(0, 49);
 				physicalDevice
-						.setDescription((phyDescription == null || phyDescription.isEmpty()) ? "N/A" : phyDescription);
+						.setDescription((phyDescription == null || phyDescription.isEmpty()) ? NA : phyDescription);
 			} else {
 				physicalDevice
-						.setDescription((rfc1213Mib.getSysDescr() == null || rfc1213Mib.getSysDescr().isEmpty()) ? "N/A"
+						.setDescription((rfc1213Mib.getSysDescr() == null || rfc1213Mib.getSysDescr().isEmpty()) ? NA
 								: rfc1213Mib.getSysDescr());
 			}
 
-			// physicalDevice.setPhysicalLocation(physicalLoc);
+			physicalDevice.setPhysicalLocation(physicalLoc);
 			physicalDevice.setNetworkLocationCode(location);
 			physicalDevice.setPhysicalAddress(snmpDataResponseType.getManagementIP());
 			physicalDevice.setAlias(request.getScopeAddress());
@@ -284,12 +286,8 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 
 			// Apply custom physical device specification
 			logger.debug("chassis  before PD set" + chassisType.toUpperCase().trim().replaceAll("\\s+", "") + "_PD");
-
-			boolean hasPDSpecification = false;
-			hasPDSpecification = niDiscoveryContext.applySpecification(physicalDevice,
-					physicalDevice.getName().trim().replaceAll("\\s+", "") + "_PD");
-			logger.debug("IP-----------------------" + snmpDataResponseType.getManagementIP());
 			chassisName = chassisType.toUpperCase().trim().replaceAll("\\s+", "");
+			System.out.println("Chassis name =========" + chassisName);
 			logger.debug("Chassis name =========" + chassisName);
 			if (physicalDevice.getName().contains("S5328C") || physicalDevice.getName().contains("S5328F")
 					|| physicalDevice.getName().contains("S5328E")) {
@@ -309,10 +307,15 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 			} else {
 				chassisName = chassisType.toUpperCase().trim().replaceAll("\\s+", "");
 			}
+			boolean hasPDSpecification = false;
+			hasPDSpecification = niDiscoveryContext.applySpecification(physicalDevice,
+					physicalDevice.getName().trim().replaceAll("\\s+", "") + "_PD");
+			logger.debug("IP-----------------------" + snmpDataResponseType.getManagementIP());
+			
 			materialCode = materialcodeMapProps.getProperty(chassisName);
 			devDim = niDiscoveryContext.getDeviceDimensionMappings().getProperty(chassisName);
 
-			logger.debug("materialCode=======" + materialCode);
+			logger.debug("materialCode	=======" + materialCode);
 			// System.out.println("materialCode=======" + materialCode);
 			if (hasPDSpecification) {
 				// logger.debug("In spec ===========================");
@@ -321,11 +324,11 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 				Map<String, String> physicalDeviceCharMap = new HashMap<String, String>();
 				physicalDeviceCharMap.put("ipAddress",
 						((snmpDataResponseType.getManagementIP() == null
-								|| snmpDataResponseType.getManagementIP().isEmpty()) ? "N/A"
+								|| snmpDataResponseType.getManagementIP().isEmpty()) ? NA
 										: snmpDataResponseType.getManagementIP()));
-				physicalDeviceCharMap.put("neId", (deviceName == null || deviceName.isEmpty()) ? "N/A" : deviceName);
+				physicalDeviceCharMap.put("neId", (deviceName == null || deviceName.isEmpty()) ? NA : deviceName);
 				physicalDeviceCharMap.put("materialCode",
-						(materialCode == null || materialCode.isEmpty()) ? "N/A" : materialCode);
+						(materialCode == null || materialCode.isEmpty()) ? NA : materialCode);
 				physicalDeviceCharMap.put("alarmStatus", "ok");
 				physicalDeviceCharMap.put("deviceDimension", checkforNull(devDim));
 				physicalDeviceCharMap.put("emsName", "NCE");
@@ -347,8 +350,8 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 					}
 
 				} else {
-					physicalDeviceCharMap.put("softwareVersion", "N/A");
-					physicalDeviceCharMap.put("hardwareVersion", "N/A");
+					physicalDeviceCharMap.put("softwareVersion", NA);
+					physicalDeviceCharMap.put("hardwareVersion", NA);
 				}
 				/*
 				 * else if (rfc1213Mib.getSysDescr() != null &&
@@ -382,21 +385,58 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 					        List<EquipmentHolder> equipmentHolders = equipment.getEquipmentHolders();
 					        EquipmentSpecification specification = equipment.getSpecification();
 					        System.out.println("shelf specification name====================" + specification.getName().replaceAll("\\s+", ""));
-					        int count = 1; // Initialize count outside the loop if this is intentional
 					        String noOfslots = slotPosition.getProperty(specification.getName().replaceAll("\\s+", ""));
 					        System.out.println("noOfslots=============" + noOfslots);
 					        if (noOfslots !=null && !noOfslots.isEmpty()) {
 					        List<EquipmentHolder> newEquipmentHolders = new ArrayList<>();
 					        Set<String> existingNativeEmsNames = new HashSet<>();
 					        for (EquipmentHolder slot : equipmentHolders) {
-					            System.out.println("count=================" + count);
 					            System.out.println("Existing slots: " + slot.getName());
 					            //list of native ems
 					           existingNativeEmsNames.add(slot.getNativeEmsName()) ;
 					        
 					        }
-					        
-					            for (int i = 1; i <= Integer.parseInt(noOfslots); i++) {
+					        String finalSpecName=null;
+					        if (existingNativeEmsNames.contains("0")) {
+					        	for (int i = 0; i < Integer.parseInt(noOfslots); i++) {
+					                String newNativeEmsName = String.valueOf(i);
+					               // System.out.println("value of i============"+i);
+					                //newNativeEmsName=23 existingNativeEmsNames=no 23
+					                if (!existingNativeEmsNames.contains(newNativeEmsName)) {
+					                    EquipmentHolder holder = DiscoveryUtility.createEquipmentHolder();
+					                    holder.setName("Slot-" + i); //23
+					                    holder.setNativeEmsName(String.valueOf(i));
+					                    holder.setDescription("EmptySlots");
+					                   // holder.setSerialNumber("NA");
+					                   // holder.setPhysicalLocation(physicalLoc);
+					                   // System.out.println("new slot name ==============="+holder.getName());
+					                    String holderName = chassisType.toUpperCase().trim().replaceAll("\\s+", "") + "_"
+					            				+ holder.getName().toUpperCase().trim().replaceAll("\\s+", "_");
+					                    
+					            		String sysDescr = rfc1213Mib.getSysDescr();
+					            		 if (physicalDevice.getName().contains("5000")) {
+					            			finalSpecName = "5000_" + holderName;
+					            		} else if (physicalDevice.getName().contains("S5328C") || physicalDevice.getName().contains("S5328F")
+					            				|| physicalDevice.getName().contains("S5328E")) {
+					            			finalSpecName = "S5328C-EI-24S_" + holderName;
+					            		} else if (physicalDevice.getName().contains("S5328P")&& !sysDescr.contains("S5328C-EI-24S")) {
+					            			finalSpecName = "S5328C-EI_" + holderName;
+					            		} else if (physicalDevice.getName().contains("S5352P")) {
+					            			finalSpecName = "S5352C-EI_" + holderName;
+					            		}else if (sysDescr.contains("S5328C-EI-24S")) {
+					            			finalSpecName = "S5328C-EI-24S_" + holderName;
+					            		} else {
+					            			finalSpecName = holderName;
+					            		}
+
+					                    boolean hasSlotSpecification=niDiscoveryContext.applySpecification(holder, finalSpecName);
+					                    newEquipmentHolders.add(holder);
+					            }
+					            
+					        }
+					        	equipmentHolders.addAll(newEquipmentHolders); 
+							} else {
+								for (int i = 1; i <= Integer.parseInt(noOfslots); i++) {
 					                String newNativeEmsName = String.valueOf(i);
 					                //newNativeEmsName=23 existingNativeEmsNames=no 23
 					                if (!existingNativeEmsNames.contains(newNativeEmsName)) {
@@ -404,7 +444,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 					                    holder.setName("Slot-" + i); //23
 					                    holder.setNativeEmsName(String.valueOf(i));
 					                    holder.setDescription("EmptySlots");
-					                    holder.setSerialNumber("NA");
+					                    //holder.setSerialNumber(NA);
 					                    holder.setPhysicalLocation(physicalLoc);
 					                    String holderName = chassisType.toUpperCase().trim().replaceAll("\\s+", "") + "_"
 					            				+ holder.getName().toUpperCase().trim().replaceAll("\\s+", "_");
@@ -413,8 +453,11 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 					            }
 					            
 					        }
+								equipmentHolders.addAll(newEquipmentHolders); 
+							}
+					            
 					            //add the sorting logic
-					            equipmentHolders.addAll(newEquipmentHolders); 
+					            //equipmentHolders.addAll(newEquipmentHolders); 
 					            equipmentHolders.sort(Comparator.comparing(EquipmentHolder::getNativeEmsName)); 
 					            customSort(equipmentHolders);
 					            // Add new equipment holders to the original list after the iteration
@@ -566,7 +609,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 			port.setName(portdata.getEntPhysicalName());
 			//port.setId(portdata.getEntPhysicalName());
 			port.setDescription(
-					(portdata.getEntPhysicalDescr() == null || portdata.getEntPhysicalDescr().isEmpty()) ? "N/A"
+					(portdata.getEntPhysicalDescr() == null || portdata.getEntPhysicalDescr().isEmpty()) ? NA
 							: portdata.getEntPhysicalDescr());
 			port.setPortNumber((portdata.getEntPhysicalParentRelPos().intValue()));
 			if (portdata.getEntPhysicalSerialNum() != null && !portdata.getEntPhysicalSerialNum().trim().isEmpty()) {
@@ -575,10 +618,10 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 				port.setSerialNumber(populateSerialNumber(portdata.getIndex()));
 			}
 			port.setPhysicalLocation(checkforNull(physicalLoc));
-			port.setSerialNumber("N/A");
-			port.setCustomerPortName("N/A");
+			port.setSerialNumber(NA);
+			port.setCustomerPortName(NA);
 			port.setPhysicalAddress(ipAddress);
-			port.setVendorPortName("N/A");
+			port.setVendorPortName(NA);
 			String portName = portdata.getEntPhysicalName().toUpperCase().trim();
 			boolean hasPORTSpecification = false;
 			String portDiscreption = portdata.getEntPhysicalDescr().toUpperCase();
@@ -655,7 +698,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 
 			if (!Utils.checkNull(parentindex) && globalEquipMap.containsKey(parentindex)) {
 				Equipment parenteuipment = globalEquipMap.get(parentindex);
-				if (!port.getName().contains("Cascade")||!port.getName().contains("Fsp")) {
+				if (!port.getName().contains("Cascade")&&!port.getName().contains("Fsp")) {
 					DiscoveryUtility.addPhysicalPortToEquipment(parenteuipment, port);
 				}
 				
@@ -672,7 +715,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 		final String mid = MID + "modelEquipment";
 		getLogger().info(DiscoveryConstants.LOG_ENTER + mid);
 		String parentindex = equipData.getEntPhysicalContainedIn().toString();
-		String location=null;
+		
 		Equipment rearEquipment = null;
 //		String networkLocationCode="";
 		String chassisName = chassisType.toUpperCase().trim().replaceAll("\\s+", "");
@@ -711,7 +754,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 				shelfName = equipData.getEntPhysicalName();
 			}
 			Properties networkLocationMappings = NIDiscoveryContext.getNetworkLocationMappings();
-			location = networkLocationMappings.getProperty(shelfName);
+			//location = networkLocationMappings.getProperty(shelfName);
 			Equipment equipment = DiscoveryUtility.createEquipment();
 			if (equipData.getEntPhysicalClass().toString().toUpperCase().contains("CHASSIS")
 					|| equipData.getEntPhysicalClass().toString().toUpperCase().contains("FRAME")) {
@@ -729,16 +772,16 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 			devDim = niDiscoveryContext.getDeviceDimensionMappings().getProperty(shelfName);
 			String shelfmatcode=niDiscoveryContext.getMaterialCodeMappings().getProperty(shelfName+"_MAT");
 			String shelfdevDimension=devDim+"_DIMENSION";
-			equipment.setPhysicalLocation(checkforNull(physicalLoc));
+			//equipment.setPhysicalLocation(checkforNull(physicalLoc));
 			equipment.setDescription(checkforNull(equipData.getEntPhysicalDescr()));
 			equipment.setSerialNumber(
 					(equipData.getEntPhysicalSerialNum() == null || equipData.getEntPhysicalSerialNum().isEmpty())
-							? "N/A"
+							? NA
 							: equipData.getEntPhysicalSerialNum());
 			// equipment.set
 			//equipment.setNetworkLocationCode(location);
-			equipment.setNativeEMSName(checkforNull(rfc1213Mib.getSysName()));
-
+			//equipment.setNativeEMSName(checkforNull(rfc1213Mib.getSysName()));
+			equipment.setNetworkLocationCode(location);
 			boolean hasCARDSpecification = false;
 			// materialCode = materialcodeMapProps.getProperty(chassisName);
 			getLogger().info("About to instantiate Equipment object" + equipment);
@@ -756,9 +799,10 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 					rearEquipment.setName(checkforNull(shelfName + "_back"));
 					rearEquipment.setDescription(checkforNull(equipData.getEntPhysicalDescr()));
 					rearEquipment.setSerialNumber((equipData.getEntPhysicalSerialNum() == null
-							|| equipData.getEntPhysicalSerialNum().isEmpty()) ? "N/A"
+							|| equipData.getEntPhysicalSerialNum().isEmpty()) ? NA
 									: equipData.getEntPhysicalSerialNum());
-					rearEquipment.setPhysicalLocation(checkforNull(physicalLoc));
+					//rearEquipment.setPhysicalLocation(checkforNull(physicalLoc));
+					rearEquipment.setNetworkLocationCode(location);
 //					rearEquipment.setPhysicalLocation(networkLocationCode);
 					//rearEquipment.setNetworkLocationCode(location);
 //					rearEquipment.setNativeEMSName(rfc1213Mib.getSysName());
@@ -772,16 +816,16 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 						cardCharMap.put("discoveryStatus", "Active");
 						cardCharMap.put("materialCode", checkforNull(shelfmatcode));
 						cardCharMap.put("alarmStatus", "ok");
-						cardCharMap.put("category", "N/A");
-						cardCharMap.put("subCategory", "N/A");
-						cardCharMap.put("deviceDimension", "NA");
+						cardCharMap.put("category", NA);
+						cardCharMap.put("subCategory", NA);
+						cardCharMap.put("deviceDimension", NA);
 						cardCharMap.put("HardwareVersion",
 								((equipData.getEntPhysicalHardwareRev() == null
-										|| equipData.getEntPhysicalHardwareRev().isEmpty()) ? "N/A"
+										|| equipData.getEntPhysicalHardwareRev().isEmpty()) ? NA
 												: equipData.getEntPhysicalHardwareRev()));
 						cardCharMap.put("SoftwareVersion",
 								((equipData.getEntPhysicalSoftwareRev() == null
-										|| equipData.getEntPhysicalSoftwareRev().isEmpty()) ? "N/A"
+										|| equipData.getEntPhysicalSoftwareRev().isEmpty()) ? NA
 												: equipData.getEntPhysicalSoftwareRev()));
 
 						niDiscoveryContext.applyCharacteristics(rearEquipment, cardCharMap);
@@ -802,9 +846,10 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 					rearEquipment.setName(shelfName + "back");
 					rearEquipment.setDescription(equipData.getEntPhysicalDescr());
 					rearEquipment.setSerialNumber((equipData.getEntPhysicalSerialNum() == null
-							|| equipData.getEntPhysicalSerialNum().isEmpty()) ? "NA"
+							|| equipData.getEntPhysicalSerialNum().isEmpty()) ? NA
 									: equipData.getEntPhysicalSerialNum());
-					rearEquipment.setPhysicalLocation(physicalLoc);
+					//rearEquipment.setPhysicalLocation(physicalLoc);
+					rearEquipment.setNetworkLocationCode(location);
 					//rearEquipment.setNetworkLocationCode(location);
 					
 //					rearEquipment.setNativeEMSName(rfc1213Mib.getSysName());
@@ -815,18 +860,18 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 						// logger.debug("hasREARCARDSpecification-----------------");
 						Map<String, String> cardCharMap = new HashMap<String, String>();
 						cardCharMap.put("discoveryStatus", "Active");
-						cardCharMap.put("materialCode", "N/A");
+						cardCharMap.put("materialCode", NA);
 						cardCharMap.put("alarmStatus", "ok");
-						cardCharMap.put("category", "N/A");
-						cardCharMap.put("subCategory", "N/A");
-						cardCharMap.put("deviceDimension", "NA");
+						cardCharMap.put("category", NA);
+						cardCharMap.put("subCategory", NA);
+						cardCharMap.put("deviceDimension", NA);
 						cardCharMap.put("HardwareVersion",
 								((equipData.getEntPhysicalHardwareRev() == null
-										|| equipData.getEntPhysicalHardwareRev().isEmpty()) ? "N/A"
+										|| equipData.getEntPhysicalHardwareRev().isEmpty()) ? NA
 												: equipData.getEntPhysicalHardwareRev()));
 						cardCharMap.put("SoftwareVersion",
 								((equipData.getEntPhysicalSoftwareRev() == null
-										|| equipData.getEntPhysicalSoftwareRev().isEmpty()) ? "N/A"
+										|| equipData.getEntPhysicalSoftwareRev().isEmpty()) ? NA
 												: equipData.getEntPhysicalSoftwareRev()));
 
 						niDiscoveryContext.applyCharacteristics(rearEquipment, cardCharMap);
@@ -844,7 +889,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 				// hasCARDSpecification);
 			} else if (!Utils.checkNull(equipData.getEntPhysicalModelName())
 					&& !Utils.checkBlank(equipData.getEntPhysicalModelName())
-					&& !equipData.getEntPhysicalModelName().trim().equalsIgnoreCase("N/A") && !hasCARDSpecification) {
+					&& !equipData.getEntPhysicalModelName().trim().equalsIgnoreCase(NA) && !hasCARDSpecification) {
 				hasCARDSpecification = niDiscoveryContext.applySpecification(equipment,
 						equipData.getEntPhysicalModelName().toUpperCase().trim().replaceAll("\\s+", "") + "_CARD");
 			} else {
@@ -870,18 +915,18 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 				}
 
 				cardCharMap.put("discoveryStatus", "Active");
-				cardCharMap.put("materialCode", "N/A");
+				cardCharMap.put("materialCode", NA);
 				cardCharMap.put("alarmStatus", "ok");
-				cardCharMap.put("category", "N/A");
-				cardCharMap.put("subCategory", "N/A");
-				cardCharMap.put("deviceDimension", "NA");
+				cardCharMap.put("category", NA);
+				cardCharMap.put("subCategory", NA);
+				cardCharMap.put("deviceDimension", NA);
 				cardCharMap.put("hardwareVersion",
 						((equipData.getEntPhysicalHardwareRev() == null
-								|| equipData.getEntPhysicalHardwareRev().isEmpty()) ? "N/A"
+								|| equipData.getEntPhysicalHardwareRev().isEmpty()) ? NA
 										: equipData.getEntPhysicalHardwareRev()));
 				cardCharMap.put("softwareVersion",
 						((equipData.getEntPhysicalSoftwareRev() == null
-								|| equipData.getEntPhysicalSoftwareRev().isEmpty()) ? "N/A"
+								|| equipData.getEntPhysicalSoftwareRev().isEmpty()) ? NA
 										: equipData.getEntPhysicalSoftwareRev()));
 				cardCharMap.put("SubBroadType", equipData.getEntPhysicalModelName().toUpperCase().trim());
 				cardCharMap.put("BoardType", equipData.getEntPhysicalModelName().toUpperCase().trim());
@@ -1015,8 +1060,8 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 			equipHolder.setName("Slot-" + equipHolderdata.getEntPhysicalParentRelPos().toString());
 			logger.debug("slot name =========" + equipHolder.getName());
 			equipHolder.setDescription(equipHolderdata.getEntPhysicalDescr());
-			equipHolder.setSerialNumber("N/A");
-			equipHolder.setPhysicalLocation(checkforNull(physicalLoc));
+			//equipHolder.setSerialNumber("N/A");
+			//equipHolder.setPhysicalLocation(checkforNull(physicalLoc));
 			//equipHolder.setId("Slot-" + equipHolderdata.getEntPhysicalParentRelPos().toString());
 			finalSpecName = getAppropriateHolderEntityKey(equipHolderdata, equipHolder, finalSpecName);
 			// Need to Add chassisType as prefix...........
@@ -1191,7 +1236,7 @@ public class HuaweiPhysicalDeviceModelerProcessorImpl implements HuaweiPhysicalD
 	
 	private static <T> T checkforNull(T obj) {
 		if (obj == null || obj == "") {
-			return (T) "N/A";
+			return (T) NA;
 		} else {
 			return obj;
 		}

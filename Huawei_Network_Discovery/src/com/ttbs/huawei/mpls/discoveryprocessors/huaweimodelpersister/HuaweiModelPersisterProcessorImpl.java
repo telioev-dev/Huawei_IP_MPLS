@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import com.teliolabs.ttbs.integrity.reporting.util.ReportContext;
 import com.ttbs.huawei.mpls.discoveryprocessors.util.DiscoveryConstants;
+import com.ttbs.huawei.mpls.discoveryprocessors.util.HuaweiReportContext;
 import com.ttbs.huawei.mpls.discoveryprocessors.util.ResponseContext;
 
 import oracle.communications.integrity.scanCartridges.sdk.ProcessorException;
@@ -36,7 +37,7 @@ public class HuaweiModelPersisterProcessorImpl implements HuaweiModelPersisterPr
 	@Override
 	public void invoke(DiscoveryProcessorContext context, HuaweiModelPersisterProcessorRequest request)
 			throws ProcessorException {
-		
+		PhysicalDevice physicalDevice = request.getPhysicalDevice();
 		final String mid = MID + "invoke";
 		getLogger().info(discoveryConstants.LOG_ENTER+mid);
 		ResponseContext responseContext = request.getResponseContext();
@@ -46,13 +47,16 @@ public class HuaweiModelPersisterProcessorImpl implements HuaweiModelPersisterPr
 			System.out.println("reportContext object============="+reportContext);
 			String pdresultGroupName = request.getPhysicalDevice().getName();
 			String ldresultGroupName = request.getLogicalDevice().getName();
-			
+			HuaweiReportContext instance = HuaweiReportContext.getInstance();
+			List<PhysicalDevice> physicalDeviceList = instance.getPhysicalDeviceList();
+			System.out.println("physicalDeviceList==========="+physicalDeviceList.size());
 			if (null != request.getPhysicalDevice()) {
 				
 				context.addToResult(pdresultGroupName, DiscoveryConstants.DEVICE_CONST, request.getPhysicalDevice());
 				physicalDevices.add(request.getPhysicalDevice());
-				System.out.println("physical device list================"+physicalDevices.size());
-				setReportContext(physicalDevices,reportContext);
+				physicalDeviceList.add(physicalDevice);
+				System.out.println("physical device list================"+physicalDeviceList.size());
+				setReportContext(physicalDeviceList,reportContext);
 			}
 			
 			if (null != request.getLogicalDevice()) {
@@ -97,15 +101,14 @@ public class HuaweiModelPersisterProcessorImpl implements HuaweiModelPersisterPr
 			extendedCh.add("softwareVersion");
 			extendedCh.add("materialCode");
 			Set<String> portDefaultCh = new HashSet<String>();
-			defaultCh.add("name");
-			defaultCh.add("portNumber");
-			defaultCh.add("physicalAddress");
-			defaultCh.add("vendorPortName");
-			defaultCh.add("customerPortName");
-			defaultCh.add("description");
-			defaultCh.add("physicalLocation");
-			defaultCh.add("nativeEMSName");
-			defaultCh.add("serialNumber");
+			portDefaultCh.add("name");
+			portDefaultCh.add("portNumber");
+			portDefaultCh.add("physicalAddress");
+			portDefaultCh.add("vendorPortName");
+			portDefaultCh.add("customerPortName");
+			portDefaultCh.add("description");
+			portDefaultCh.add("physicalLocation");
+			portDefaultCh.add("serialNumber");
 			Set<String> portExtendedCh = new HashSet<String>();
 			extendedCh.add("discoveryStatus");
 			extendedCh.add("alarmStatus");

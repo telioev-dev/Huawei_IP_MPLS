@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import com.ttbs.huawei.mpls.discoveryprocessors.huaweilogicaldevicemodeler.HuaweiLogicalDeviceModelerProcessorInterface;
 import com.ttbs.huawei.mpls.discoveryprocessors.huaweilogicaldevicemodeler.HuaweiLogicalDeviceModelerProcessorRequest;
 import com.ttbs.huawei.mpls.discoveryprocessors.huaweilogicaldevicemodeler.HuaweiLogicalDeviceModelerProcessorResponse;
+import com.ttbs.huawei.mpls.discoveryprocessors.util.DeviceInterfaceInfo;
 import com.ttbs.huawei.mpls.discoveryprocessors.util.DiscoveryConstants;
 import com.ttbs.huawei.mpls.discoveryprocessors.util.DiscoveryRuntimeException;
 import com.ttbs.huawei.mpls.discoveryprocessors.util.DiscoveryUtility;
@@ -31,6 +32,7 @@ import oracle.communications.integrity.scanCartridges.sdk.ProcessorException;
 import oracle.communications.integrity.scanCartridges.sdk.context.DiscoveryProcessorContext;
 import oracle.communications.inventory.api.entity.DeviceInterface;
 import oracle.communications.inventory.api.entity.LogicalDevice;
+import oracle.communications.inventory.api.entity.PhysicalDevice;
 import oracle.communications.inventory.api.entity.PhysicalPort;
 import oracle.communications.platform.logging.Log;
 import oracle.communications.platform.logging.LogFactory;
@@ -96,9 +98,12 @@ public class HuaweiLogicalDeviceModelerProcessorImpl implements HuaweiLogicalDev
 	private String ipAddress;
 	private LogicalDevice logicalDevice;
 	private EntPhysicalEntryType entPhysicalEntryType[];
-
+	private HashMap<String, DeviceInterfaceInfo> parentPortMap;
 	private HashMap<String, Long> ifXEntryHighSpeedMap;
-
+	private HashMap<String, String> lagMacMap;
+	// new for BDI ParentPort
+	private HashMap<String, String> bdiParentMap;
+	private static final String NA = "NA";
 	/**
 	 * Default constructor
 	 * 
@@ -130,6 +135,9 @@ public class HuaweiLogicalDeviceModelerProcessorImpl implements HuaweiLogicalDev
 		remotePortsMap = new HashMap<String, String>();
 		remoteIpMap = new HashMap<String, String>();
 		remotePortIndexMap = new HashMap<String, String>();
+		parentPortMap = new HashMap<String, DeviceInterfaceInfo>();
+		lagMacMap = new HashMap<String, String>();
+		bdiParentMap = new HashMap<String, String>();
 	}
 	
 	@Override
@@ -228,7 +236,7 @@ public class HuaweiLogicalDeviceModelerProcessorImpl implements HuaweiLogicalDev
 			
 			
 //			logicalDevice.setIsRootElement(true);
-			logicalDevice.setNativeEMSName(checkforNull(rfc1213MibResults.getSysName()));
+			//logicalDevice.setNativeEMSName(checkforNull(rfc1213MibResults.getSysName()));
 			logicalDevice.setPhysicalLocation(checkforNull(rfc1213MibResults.getSysLocation()));
 
 			logicalDevice.setNetworkLocationEntityCode(checkforNull(physicalLoc));
@@ -269,8 +277,8 @@ public class HuaweiLogicalDeviceModelerProcessorImpl implements HuaweiLogicalDev
 					//logicalDeviceCharMap.put("softwareVersion", entPhysicalEntryType[0].getEntPhysicalSoftwareRev());
 				}
 				else {
-					logicalDeviceCharMap.put("softwareVersion","N/A");
-					logicalDeviceCharMap.put("hardwareVersion","N/A");
+					logicalDeviceCharMap.put("softwareVersion",NA);
+					logicalDeviceCharMap.put("hardwareVersion",NA);
 				}
 				/*if (rfc1213Mib.getSysDescr() != null && rfc1213Mib.getSysDescr().toLowerCase().contains("version")) {
 					String ver = rfc1213Mib.getSysDescr().toLowerCase();
@@ -361,24 +369,28 @@ public class HuaweiLogicalDeviceModelerProcessorImpl implements HuaweiLogicalDev
 							|| ifEntry.getIfDescr().toLowerCase().startsWith("virtual-template")
 							|| ifEntry.getIfDescr().toLowerCase().startsWith("eth-trunk"))
 						continue;
+					DeviceInterfaceInfo deviceInterfaceInfo = new DeviceInterfaceInfo();
 					DeviceInterface deviceInterface = (DeviceInterface) PersistenceHelper
 							.makeEntity(oracle.communications.inventory.api.entity.DeviceInterface.class);
 					deviceInterface.setName(checkforNull(ifEntry.getIfDescr().trim()));
 
 					IfXEntryType ifXEntry = (IfXEntryType) ifXEntryTypeMap.get(ifEntry.getIndex());
-					if (ifEntry.getIfDescr().length()>50) {
-						deviceInterface.setDescription(checkforNull(ifEntry.getIfDescr().substring(0, 49)));
+					if (ifXEntry.getIfAlias().length()>50) {
+						deviceInterface.setDescription(checkforNull(ifXEntry.getIfAlias().substring(0, 49)));
 					} else {
-						deviceInterface.setDescription(checkforNull(ifEntry.getIfDescr()));
+						deviceInterface.setDescription(checkforNull(ifXEntry.getIfAlias()));
 					}
 					long ifHighSpeed = ifXEntry.getIfHighSpeed();
 					
-					deviceInterface.setMaxSpeed(checkforNull(BigDecimal.valueOf((ifXEntry.getIfHighSpeed()))));
+					//deviceInterface.setMaxSpeed(checkforNull(BigDecimal.valueOf((ifXEntry.getIfHighSpeed()))));
 					deviceInterface.setInterfaceNumber(checkforNull(String.valueOf(ifEntry.getIfIndex())));
-					deviceInterface.setPhysicalLocation(checkforNull(rfc1213MibResults.getSysLocation()));
-					deviceInterface.setCustomerInterfaceNumber("N/A");;
+					//deviceInterface.setPhysicalLocation(checkforNull(rfc1213MibResults.getSysLocation()));
+					deviceInterface.setCustomerInterfaceNumber(NA);;
 					deviceInterface.setDescription(checkforNull(ifEntry.getIfDescr()))	;
-					deviceInterface.setMinSpeed(checkforNull(BigDecimal.valueOf(0)));
+					//deviceInterface.setMinSpeed(checkforNull(BigDecimal.valueOf(0)));
+					//deviceInterface.setNominalSpeed(checkforNull(BigDecimal.valueOf(0)));
+					deviceInterface.setVendorInterfaceNumber(checkforNull(String.valueOf(ifEntry.getIfIndex())));
+					//deviceInterface.setNativeEMSAdminServiceState(String.valueOf(ifEntry.getIfIndex()));
 					PhysicalPort mappedPhysicalPort = null;
 
 					if (null != request.getPortNameAndEntity()
@@ -433,6 +445,13 @@ public class HuaweiLogicalDeviceModelerProcessorImpl implements HuaweiLogicalDev
 						CharMap.put("Ipaddress", checkforNull(ipAddress));
 						CharMap.put("discoveryStatus", "Active");
 						CharMap.put("alarmStatus", "ok");
+						CharMap.put("InterfaceType",NA);
+						CharMap.put("tunedFrequency", NA);
+						CharMap.put("frequencySpacing", NA);
+						CharMap.put("noOfOCH","NA");
+						CharMap.put("mtuSupported",checkforNull(String.valueOf(ifEntry.getIfMtu())));
+						CharMap.put("userLabel",logicalDevice.getName());
+						CharMap.put("configuredBandwidth",NA);
 						//
 						// String string = localPortsMap.get(deviceInterface.getName());
 
@@ -582,6 +601,113 @@ public class HuaweiLogicalDeviceModelerProcessorImpl implements HuaweiLogicalDev
 						CharMap.put("zEndDevice", deviceInterface.getIfType());
 						CharMap.put("zEndPort", deviceInterface.getCustomerInterfaceNumber());
 */
+						String vlanId = "";
+						String parentPort = "";
+
+						String ifType = ifEntry.getIfType().toString().trim();
+						if (ifType.equalsIgnoreCase("l2vlan") && ifEntry.getIfDescr().contains("ServiceInstance")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), "ServiceInstance.").trim();
+							parentPort = substringBefore(ifEntry.getIfDescr(), ".ServiceInstance").replace("\n", "")
+									.replace("\r", "").trim();
+							if (bdiParentMap.get(vlanId) == null) {
+								bdiParentMap.put(vlanId,
+										parentPort + "##" + ifEntry.getIfAdminStatus().toString().trim() + "##"
+												+ ifEntry.getIfSpeed());
+							} else {
+
+								String mapData = bdiParentMap.get(vlanId);
+								String mapAdminStatus = mapData.split("##")[1];
+								long ifSpeed = Long.parseLong(mapData.split("##")[2]);
+								if (ifEntry.getIfAdminStatus().toString().contains("up")
+										&& mapAdminStatus.contains("up")) {
+									if (ifEntry.getIfSpeed() > ifSpeed) {
+										bdiParentMap.put(vlanId,
+												parentPort + "##" + ifEntry.getIfAdminStatus().toString().trim()
+														+ "##" + ifEntry.getIfSpeed());
+									}
+								} else if (ifEntry.getIfAdminStatus().toString().contains("up")
+										&& mapAdminStatus.contains("down")) {
+									bdiParentMap.put(vlanId,
+											parentPort + "##" + ifEntry.getIfAdminStatus().toString().trim() + "##"
+													+ ifEntry.getIfSpeed());
+								}
+							}
+
+						} else if (ifType.equalsIgnoreCase("l2vlan") && ifEntry.getIfDescr().contains("Vlan")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), "Vlanif");
+						} else if (ifType.equalsIgnoreCase("l2vlan")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), ".");
+							parentPort = substringBefore(ifEntry.getIfDescr(), ".").replace("\n", "").replace("\r",
+									"");
+						} else if (ifType.equalsIgnoreCase("propVirtual") && ifEntry.getIfDescr().contains(".")
+								&& !ifEntry.getIfDescr().contains("unrouted")
+								&& !ifEntry.getIfDescr().contains("rtif")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), ".");
+							parentPort = substringBefore(ifEntry.getIfDescr(), ".").replace("\n", "").replace("\r",
+									"");
+						} else if (ifType.equalsIgnoreCase("propVirtual")
+								&& ifEntry.getIfDescr().contains("Vlanif")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), "Vlanif");
+						} else if ((ifType.equalsIgnoreCase("propVirtual")
+								|| (ifType.equalsIgnoreCase("53")) && ifEntry.getIfDescr().contains("Vlan")
+										&& !ifEntry.getIfDescr().contains("unrouted"))) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), "Vlan");
+						} else if (ifType.equalsIgnoreCase("propVirtual") && ifEntry.getIfDescr().contains("Vlan")
+								&& !ifEntry.getIfDescr().contains("unrouted")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), "Vlan");
+						} else if (ifType.equalsIgnoreCase("propVirtual") && ifEntry.getIfDescr().contains("VLAN")
+								&& !ifEntry.getIfDescr().contains("unrouted")
+								&& ifEntry.getIfDescr().contains(" ")) {
+							vlanId = Integer.toString(
+									Integer.parseInt(substringBetween(ifEntry.getIfDescr(), "VLAN ", " ")));
+						} else if (ifType.equalsIgnoreCase("ethernetCsmacd")
+								&& ifEntry.getIfDescr().contains("BDI")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), "BDI");
+							parentPort = bdiParentMap.getOrDefault(vlanId, " ## ## ").split("##")[0];
+						} else if (ifType.equalsIgnoreCase("ethernetCsmacd")
+								&& ifEntry.getIfDescr().contains("BVI")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), "BVI");
+							parentPort = bdiParentMap.getOrDefault(vlanId, " ## ## ").split("##")[0];
+						} else if (ifType.equalsIgnoreCase("softwareLoopback")
+								&& ifEntry.getIfDescr().contains("vlan")
+								&& !ifEntry.getIfDescr().contains("rtif")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), "vlan");
+						} else if (ifType.equalsIgnoreCase("softwareLoopback") && ifEntry.getIfDescr().contains(".")
+								&& !ifEntry.getIfDescr().contains("rtif")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), ".");
+						} else if (ifType.equalsIgnoreCase("propVirtual") && ifEntry.getIfDescr().contains("BVI")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), "BVI");
+						} else if (ifType.equalsIgnoreCase("l3ipvlan")
+								&& ifEntry.getIfDescr().contains("Virtual Ethernet")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), "Virtual Ethernet ");
+						} else if (ifType.equalsIgnoreCase("ieee8023adLag") && ifEntry.getIfDescr().contains(".")) {
+							vlanId = substringAfter(ifEntry.getIfDescr(), ".");
+							parentPort = substringBefore(ifEntry.getIfDescr(), ".").replace("\n", "").replace("\r",
+									"");
+						}
+
+						deviceInterfaceInfo.setIfIndex(ifEntry.getIndex());
+						deviceInterfaceInfo.setIfType(ifType);
+						deviceInterfaceInfo.setIfDescr(ifEntry.getIfDescr());
+						deviceInterfaceInfo.setVlanid(vlanId);
+						deviceInterfaceInfo.setParentPort(parentPort);
+
+						if (ifType.equalsIgnoreCase("l2vlan")
+								&& ifEntry.getIfAdminStatus().toString().equalsIgnoreCase("up")) {
+							parentPortMap.put(vlanId, deviceInterfaceInfo);
+						}
+
+						if (ifType.equalsIgnoreCase("ieee8023adLag")) {
+							lagMacMap.put(ifEntry.getIfPhysAddress(), ifEntry.getIfDescr());
+						}
+
+						deviceInterfaceInfo = enrichPortData(deviceInterfaceInfo);
+
+						// adding to Map
+						CharMap.put("VLAN_ID", vlanId);
+						CharMap.put("parentInterface", deviceInterfaceInfo.getParentPort());
+
+						// Amrutha VLAN new code ENDS
 						niDiscoveryContext.applyCharacteristics(deviceInterface, CharMap);
 					} else {
 
@@ -643,7 +769,7 @@ public class HuaweiLogicalDeviceModelerProcessorImpl implements HuaweiLogicalDev
 	@SuppressWarnings("unchecked")
 	private static <T> T checkforNull(T obj) {
 	    if (obj == null || obj == "") {
-	        return (T) "N/A";
+	        return (T) NA;
 	    } else {
 	        return obj;
 	    }
@@ -970,7 +1096,65 @@ public class HuaweiLogicalDeviceModelerProcessorImpl implements HuaweiLogicalDev
 		}
 		return logger;
 	}
+	private String substringAfter(String text, String splitter) {
+		String result = text;
+		if (text.contains(splitter)) {
+			result = text.substring(text.indexOf(splitter) + splitter.length()).trim();
+		}
+		return result;
+	}
 
+	private String substringBefore(String text, String splitter) {
+		String result = text;
+		if (text.contains(splitter)) {
+			result = text.substring(0, text.indexOf(splitter));
+		}
+		return result;
+	}
+
+	private String substringBetween(String text, String start, String end) {
+		String result = text;
+		if (text.contains(start) && text.contains(end)) {
+			result = text.substring(text.indexOf(start) + start.length(), text.indexOf(end));
+		}
+		return result;
+	}
+	private DeviceInterfaceInfo enrichPortData(DeviceInterfaceInfo deviceInterfaceInfo) {
+		/*
+		 * System.out.println(
+		 * "MY_DEBUG enrichPortData(): Inside enrichPortData  with ifIndex:" +
+		 * deviceInterfaceInfo.getIfIndex());
+		 */
+		if (deviceInterfaceInfo.getIfDescr().contains("BDI") || deviceInterfaceInfo.getIfDescr().contains("BVI")
+				|| deviceInterfaceInfo.getIfDescr().startsWith("Vlan")) {
+			DeviceInterfaceInfo parent = parentPortMap.get(deviceInterfaceInfo.getVlanid());
+			if (parent != null) {
+				deviceInterfaceInfo.setParentPort(parent.getParentPort());
+			}
+		}
+		String lagPort = lagMacMap.get(deviceInterfaceInfo.getIfPhysAddress());
+		if (deviceInterfaceInfo.getIfType().equalsIgnoreCase("ethernetCsmacd")) {
+			if (lagPort != null) {
+				deviceInterfaceInfo.setParentPort(lagPort);
+			}
+		} else if (deviceInterfaceInfo.getIfType().equalsIgnoreCase("propVirtual")
+				&& deviceInterfaceInfo.getIfDescr().contains(".")) {
+			if (lagPort != null) {
+				deviceInterfaceInfo.setParentPort(lagPort);
+			}
+		}
+
+		String parentPort = deviceInterfaceInfo.getParentPort();
+
+		if (parentPort != null) {
+			if (parentPort.contains(".")) {
+				parentPort = substringBefore(parentPort, ".");
+
+				deviceInterfaceInfo.setParentPort(parentPort);
+			}
+		}
+		return deviceInterfaceInfo;
+	}
 	private String getAppropriateDIBandwidth(String specGenerator) {
 
 		String portSpecName = "genericInterface";
